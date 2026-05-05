@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_clothing
+    restart: always
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+    volumes:
+      - mongo_data:/data/db
+
+  app:
+    build: .
+    container_name: springboot_clothing_api
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+    environment:
+      # Garante que o Spring Boot conecte apenas quando o Mongo estiver respondendo
+      - SPRING_DATA_MONGODB_URI=${MONGO_URI}
+      - SPRING_DATA_MONGODB_DATABASE=${MONGO_DB_NAME}
+
+volumes:
+  mongo_data:
